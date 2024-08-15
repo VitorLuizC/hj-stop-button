@@ -2,7 +2,7 @@ import Hotjar from "https://unpkg.com/@hotjar/browser@1.0.9/dist/index.esm.js";
 
 const HOTJAR_VERSION = 6;
 
-const HOTJAR_SITE_ID = 5093932;
+const HOTJAR_SITE_ID = 5_093_932;
 
 class Tracker {
   #initialized = false;
@@ -16,12 +16,24 @@ class Tracker {
 
     if (this.#initialized) return;
 
-    // deletes previous stub hj object
-    if (window.hj && Symbol.for("is stub hj") in window.hj) delete window.hj;
+    // const stub = window.hj;
 
-    this.#initialized = Hotjar.init(HOTJAR_SITE_ID, HOTJAR_VERSION, {
-      debug: true,
-    });
+    // if (stub && Symbol.for("is stub hj") in stub) {
+    //   delete window.hj;
+    // }
+
+    // defines 'window.hj'
+    if (!window.hj)
+      this.#initialized = Hotjar.init(HOTJAR_SITE_ID, HOTJAR_VERSION, {
+        debug: true,
+      });
+    else
+      window.hj.metrics.start()
+
+    // // defines stub as 'window.hj' when couldn't initialize it
+    // if (!window.hj && stub) {
+    //   window.hj = stub;
+    // }
   }
 
   finalize(feature) {
@@ -37,20 +49,21 @@ class Tracker {
 
     if (!this.#initialized) return;
 
-    const script = document.getElementById("hotjar-init-script");
-    const iframe = document.querySelector("iframe[title=_hjSafeContext]");
-    script?.remove();
-    iframe?.remove();
-    window.hj?.q?.splice(0, window.hj.q.length);
+    // const script = document.getElementById("hotjar-init-script");
+    // const iframe = document.querySelector("iframe[title=_hjSafeContext]");
+    // script?.remove();
+    // iframe?.remove();
+    // window.hj?.q?.splice(0, window.hj.q.length);
     window.hj?.metrics?.stop();
-    delete window.hj?.metrics;
-    delete window.hj;
+    // delete window.hj?.metrics;
+    // delete window.hj;
 
     // creates an stub hotjar object to avoid errors
-    window.hj = {
-      [Symbol.for("is stub hj")]: true,
-      tryCatch() {},
-    };
+    // window.hj = {
+    //   [Symbol.for("is stub hj")]: true,
+    //   hq() {},
+    //   tryCatch() {},
+    // };
 
     this.#initialized = false;
   }
